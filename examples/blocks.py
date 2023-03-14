@@ -1,7 +1,7 @@
 from wolai.types.block import *
 from wolai.types import *
 from wolai.types.block.list import make_list
-from wolai.auth import get_authed_context
+from wolai.auth import get_authed_context, get_token, refresh_token
 from wolai.block import create_block, get_block_children
 
 try:
@@ -16,6 +16,9 @@ IMAGE = 'https://img2.baidu.com/it/u=3202947311,1179654885&fm=253&fmt=auto&app=1
 
 def main():
     # get authed context
+    app_token = get_token(APP_ID, APP_SECRET)
+    refresh_token(app_token)
+
     ctx = get_authed_context(APP_ID, APP_SECRET)
 
     a = HeadingBlock(level=HeadingLevel.TWO, content=['My ', RichText(type=InlineTitleType.text,

@@ -16,8 +16,8 @@ from local_settings import APP_ID, APP_SECRET
 
 
 MATCH_HEADING = re.compile('^h([1-6])$')
-BLOCK_TAGS = ('p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'pre', 'a', )
-INLINE_TAGS = ('span', 'b', 'strong', 'i', 'code', )
+BLOCK_TAGS = ('p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'pre', )
+INLINE_TAGS = ('span', 'b', 'strong', 'i', 'code', 'a', )
 
 
 def get_texts(element: PageElement | Tag | NavigableString) -> list[RichText]:
@@ -122,13 +122,14 @@ def elements2blocks(element: PageElement | Tag | NavigableString, image_table: d
                     blocks.extend(make_list(items, EnumListBlock))
 
             elif tag_name == 'en-media':
-                url = image_table.get(child.attrs['hash'], 'https://www.wolai.com/notexists')
-                blocks.append(ImageBlock(link=url))
+                if image_table:
+                    url = image_table.get(child.attrs['hash'], 'https://www.wolai.com/notexists')
+                    blocks.append(ImageBlock(link=url))
 
             elif tag_name == 'hr':
                 blocks.append(DividerBlock())
 
-            elif tag_name is None or tag_name in ('p', 'span', ):
+            elif tag_name is None or tag_name in INLINE_TAGS:
                 if child.text.strip():
                     blocks.append(TextBlock(get_texts(child)))
 
@@ -143,11 +144,12 @@ def elements2blocks(element: PageElement | Tag | NavigableString, image_table: d
 
             elif tag_name in 'br':
                 continue
-            elif tag_name == 'a':
-                pass
 
             elif tag_name == 'table':
                 pass
+
+            elif tag_name in BLOCK_TAGS:
+                blocks.append(TextBlock(get_texts(child)))
 
             else:
                 logger.info(f'unhandled tag <{tag_name}>: {child}')
@@ -193,5 +195,15 @@ def main():
             note_page.create_blocks(blocks)
 
 
+def main2():
+    wolai_obj = Wolai(app_id=APP_ID, app_secret=APP_SECRET, page_id='h6J51UmA3KJYHQ1QSjDteS')
+    content = BeautifulSoup('<p>abc<a href=def>def</a>ghi<span>span</span><code>code</code></p>', 'html.parser')
+    blocks = elements2blocks(content, image_table=None)
+
+    print(blocks)
+    note_page = wolai_obj.create_page('Test')
+    note_page.create_blocks(blocks)
+
+
 if __name__ == '__main__':
-    main()
+    main2()
