@@ -4,7 +4,7 @@ from collections import ChainMap
 
 from wolai.types.block import BlockType, BlockAlign, Block
 from wolai.types.text import RichText, TextAlign
-from wolai.types.block.color import BlockFrontColor, BlockBackColor
+from wolai.types.block.color import BlockFrontColors, BlockBackColors
 from wolai.types.database import DatabaseRowData
 from wolai.exceptions import WolaiEnumTypeException
 from wolai.encoder import to_json
@@ -71,8 +71,8 @@ class BlockFormat(Response):
     created_at: int = None
     edited_by: str = None
     edited_at: int = None
-    block_front_color: BlockFrontColor = None
-    block_back_color: BlockBackColor = None
+    block_front_color: BlockFrontColors = None
+    block_back_color: BlockBackColors = None
     text_alignment: TextAlign = None
     block_alignment: BlockAlign = None
 

@@ -9,15 +9,25 @@ from bs4.element import Tag, PageElement, NavigableString
 from wolai import Wolai
 from wolai.logger import logger
 from wolai.types.block import *
-from wolai.types.text import RichText
+from wolai.types.block.color import BlockFrontColors, BlockBackColors
+from wolai.types.text import RichText, TextAlign
 from wolai.types.block.list import make_list, BullListBlock, EnumListBlock
 
 from local_settings import APP_ID, APP_SECRET
 
 
 MATCH_HEADING = re.compile('^h([1-6])$')
-BLOCK_TAGS = ('p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'pre', )
+BLOCK_TAGS = ('p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'pre', 'center', )
 INLINE_TAGS = ('span', 'b', 'strong', 'i', 'code', 'a', )
+
+BACKGROUND_COLOR = {
+    'orange': BlockBackColors.vivid_tangerine_background,
+    'purple': BlockBackColors.pale_purple_background,
+    'green': BlockBackColors.aero_blue_background,
+    'blue': BlockBackColors.uranian_blue_background,
+    'red': BlockBackColors.light_pink_background,
+    'yellow': BlockBackColors.blond_background,
+}
 
 
 def get_texts(element: PageElement | Tag | NavigableString) -> list[RichText]:
@@ -28,12 +38,21 @@ def get_texts(element: PageElement | Tag | NavigableString) -> list[RichText]:
             ret.append(RichText(element.text))
         return ret
 
+    style = parse_style(element.attrs.get('style', ''))
+    parent_background_color = style.get('--en-highlight', BlockBackColors.default_background)
+
     for child in element.children:
+        background_color = None
         texts = []
+
         tag_name = getattr(child, 'name')
 
         if isinstance(child, Tag):
             grandchild = list(child.children)
+            style = parse_style(child.attrs.get('style', ''))
+            color_name = style.get('--en-highlight', 'default')
+            background_color = BACKGROUND_COLOR.get(color_name, parent_background_color)
+
         elif isinstance(child, NavigableString):
             grandchild = [child.text]
         else:
@@ -66,6 +85,12 @@ def get_texts(element: PageElement | Tag | NavigableString) -> list[RichText]:
         if not texts:
             continue
 
+        for i in texts:
+            if background_color is None:
+                background_color = parent_background_color
+
+            i.back_color = background_color
+
         ret.extend(texts)
 
     return ret
@@ -91,6 +116,45 @@ def has_block_tag(element: Tag) -> bool:
     return False
 
 
+def process_block_tags(element: Tag) -> Block | None:
+    tag_name = getattr(element, 'name')
+    block: Block | None = None
+
+    style = parse_style(element.attrs.get('style', ''))
+    if tag_name == 'div':
+        texts = get_texts(element)
+        if not texts:
+            return block
+
+        if style.get('--en-codeblock') == 'true':
+            code = ''
+            for item in texts:
+                code += f'{item.title}\n'
+            block = CodeBlock(content=code, language='php')
+        else:
+            block = TextBlock(texts)
+
+    elif tag_name == 'pre':
+        block = CodeBlock(language='php', content=element.text)
+
+    elif MATCH_HEADING.findall(tag_name):
+        level = int(MATCH_HEADING.findall(tag_name)[0])
+        if level >= 4:
+            level = 4
+        block = HeadingBlock(level=level, content=element.text)
+
+    elif tag_name == 'center':
+        block = TextBlock(content=get_texts(element), text_alignment=TextAlign.center)
+
+    else:
+        block = TextBlock(get_texts(element))
+
+    if style.get('text-align') == 'center':
+        block.text_alignment = TextAlign.center
+
+    return block
+
+
 def elements2blocks(element: PageElement | Tag | NavigableString, image_table: dict = None) -> list[Block]:
     blocks: list[Block] = []
     for child in element.children:
@@ -100,21 +164,7 @@ def elements2blocks(element: PageElement | Tag | NavigableString, image_table: d
             blocks.extend(elements2blocks(child, image_table=image_table))
 
         elif isinstance(child, Tag):
-            if tag_name == 'div':
-                style = parse_style(child.attrs.get('style', ''))
-                texts = get_texts(child)
-                if not texts:
-                    continue
-
-                if style.get('--en-codeblock') == 'true':
-                    code = ''
-                    for item in texts:
-                        code += f'{item.title}\n'
-                    blocks.append(CodeBlock(content=code, language='php'))
-                else:
-                    blocks.append(TextBlock(texts))
-
-            elif tag_name in ('ul', 'ol'):
+            if tag_name in ('ul', 'ol'):
                 items = [{'content': get_texts(item)} for item in child.findAll('li')]
                 if tag_name == 'ul':
                     blocks.extend(make_list(items, BullListBlock))
@@ -129,28 +179,17 @@ def elements2blocks(element: PageElement | Tag | NavigableString, image_table: d
             elif tag_name == 'hr':
                 blocks.append(DividerBlock())
 
-            elif tag_name is None or tag_name in INLINE_TAGS:
+            elif tag_name is None or tag_name in INLINE_TAGS or tag_name == 'br':
                 if child.text.strip():
                     blocks.append(TextBlock(get_texts(child)))
-
-            elif MATCH_HEADING.findall(tag_name):
-                level = int(MATCH_HEADING.findall(tag_name)[0])
-                if level >= 4:
-                    level = 4
-                blocks.append(HeadingBlock(level=level, content=child.text))
-
-            elif tag_name == 'pre':
-                blocks.append(CodeBlock(language='php', content=child.text))
-
-            elif tag_name in 'br':
-                continue
 
             elif tag_name == 'table':
                 pass
 
             elif tag_name in BLOCK_TAGS:
-                blocks.append(TextBlock(get_texts(child)))
-
+                block = process_block_tags(child)
+                if block:
+                    blocks.append(block)
             else:
                 logger.info(f'unhandled tag <{tag_name}>: {child}')
 
@@ -170,7 +209,7 @@ def upload_images(image_data: bytes) -> str:
 def main():
     wolai_obj = Wolai(app_id=APP_ID, app_secret=APP_SECRET, page_id='h6J51UmA3KJYHQ1QSjDteS')
 
-    with open('Pwnable.enex', 'rb') as f:
+    with open('test.enex', 'rb') as f:
         data = xmltodict.parse(f.read())
 
         notes = data['en-export']['note']
@@ -183,14 +222,13 @@ def main():
             content = BeautifulSoup(fix_write_chars(note['content']), features='xml').find('en-note')
 
             image_table = {}
-            for i in note['resource']:
+            for i in note.get('resource', []):
                 image_data = codecs.decode(i['data']['#text'].encode(), 'base64')
                 url = upload_images(image_data)
                 logger.info(f'image uploaded successfully: {url}')
                 image_table[hashlib.md5(image_data).hexdigest()] = url
 
             blocks = elements2blocks(content, image_table=image_table)
-
             note_page = wolai_obj.create_page(note['title'])
             note_page.create_blocks(blocks)
 
@@ -200,10 +238,9 @@ def main2():
     content = BeautifulSoup('<p>abc<a href=def>def</a>ghi<span>span</span><code>code</code></p>', 'html.parser')
     blocks = elements2blocks(content, image_table=None)
 
-    print(blocks)
     note_page = wolai_obj.create_page('Test')
     note_page.create_blocks(blocks)
 
 
 if __name__ == '__main__':
-    main2()
+    main()

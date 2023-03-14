@@ -1,7 +1,7 @@
 import typing
 
 from wolai.types.enum import AutoName, auto, Base
-from wolai.types.block.color import BlockFrontColor, BlockBackColor
+from wolai.types.block.color import BlockFrontColors, BlockBackColors
 
 
 class TextAlign(AutoName):
@@ -31,13 +31,14 @@ class RichText(Base):
     highlight: bool = False
     strikethrough: bool = False
     inline_code: bool = False
-    front_color: BlockFrontColor = None
-    back_color: BlockBackColor = None
+    front_color: BlockFrontColors = None
+    back_color: BlockBackColors = None
 
     def __init__(self, title: str, bold: bool = False, italic: bool = False, type: InlineTitleType | str = 'text',
                  underline: bool = False, highlight: bool = False, strikethrough: bool = False,
-                 inline_code: bool = False, front_color: BlockFrontColor = BlockFrontColor.default,
-                 back_color: BlockBackColor = BlockBackColor.default):
+                 inline_code: bool = False, front_color: BlockFrontColors | str = BlockFrontColors.default,
+                 back_color: BlockBackColors | str = BlockBackColors.default_background):
+
         if isinstance(type, str):
             type = InlineTitleType[type]
 
@@ -49,8 +50,23 @@ class RichText(Base):
         self.highlight = highlight
         self.strikethrough = strikethrough
         self.inline_code = inline_code
+
+        if isinstance(front_color, str):
+            front_color = BlockFrontColors[front_color]
+        if isinstance(back_color, str):
+            back_color = BlockBackColors[back_color]
+
         self.front_color = front_color
         self.back_color = back_color
+
+    def __getattribute__(self, item):
+        ret = super().__getattribute__(item)
+        if item == '__dict__':
+            if self.back_color != BlockBackColors.default_background:
+                if 'front_color' in ret:
+                    del ret['front_color']
+
+        return ret
 
 
 CreateRichText = typing.TypeVar('CreateRichText', str, RichText, None, list[str | RichText])

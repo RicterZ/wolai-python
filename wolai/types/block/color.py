@@ -1,7 +1,7 @@
 from wolai.types.enum import AutoName, auto
 
 
-class BlockFrontColor(AutoName):
+class BlockFrontColors(AutoName):
     default = auto()
     gray = auto()
     dark_gray = auto()
@@ -16,8 +16,8 @@ class BlockFrontColor(AutoName):
     red = auto()
 
 
-class BlockBackColor(AutoName):
-    default = auto()
+class BlockBackColors(AutoName):
+    default_background = auto()
     cultured_background = auto()
     light_gray_background = auto()
     apricot_background = auto()

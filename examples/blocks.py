@@ -22,8 +22,8 @@ def main():
     ctx = get_authed_context(APP_ID, APP_SECRET)
 
     a = HeadingBlock(level=HeadingLevel.TWO, content=['My ', RichText(type=InlineTitleType.text,
-                                                                      front_color=BlockFrontColor.pink,
-                                                                      back_color=BlockBackColor.light_pink_background,
+                                                                      front_color=BlockFrontColors.pink,
+                                                                      back_color=BlockBackColors.light_pink_background,
                                                                       # TODO: back_color not working
                                                                       title='Colorful API')])
     b = TextBlock(content='center!!!', text_alignment=TextAlign.center)
