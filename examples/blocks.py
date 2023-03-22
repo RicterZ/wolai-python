@@ -10,15 +10,12 @@ except ImportError:
     APP_ID = '4X96H9ovsa7pyK6xmPgBHm'
     APP_SECRET = '5086c508ef0711543ca932d375f1fb3d4222d3fd69c69f2b15e17e1c0188bddf'
 
-PARENT_ID = '4DqJJqtV7RpJX74VE9noMB'
+PARENT_ID = 'h6J51UmA3KJYHQ1QSjDteS'
 IMAGE = 'https://img2.baidu.com/it/u=3202947311,1179654885&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
 
 
 def main():
     # get authed context
-    app_token = get_token(APP_ID, APP_SECRET)
-    refresh_token(app_token)
-
     ctx = get_authed_context(APP_ID, APP_SECRET)
 
     a = HeadingBlock(level=HeadingLevel.TWO, content=['My ', RichText(type=InlineTitleType.text,
@@ -40,9 +37,11 @@ def main():
     g = ProgressBarBlock(progress=50)
     h = BookMarkBlock(link='https://baidu.com')
     i = DividerBlock()
+    j = SimpleTableBlock(table_setting=TableSetting(has_header=True), caption='Test Table',
+                         table_content=[['a', 'b', 'c'], ['d', 'e', 'f'], ['h', 'i', 'j']])
 
     # create some basic blocks
-    create_block(ctx, PARENT_ID, blocks=[a, b, c, d, e, f, g, h, i])
+    create_block(ctx, PARENT_ID, blocks=[a, b, c, d, e, f, g, h, i, j])
 
     # generate a todo_list via make_list function
     todo = [
@@ -57,7 +56,7 @@ def main():
     blocks = [i.block_instance for i in get_block_children(ctx, PARENT_ID)[0]]
 
     # submit children blocks to another page
-    create_block(ctx, 's7gEya6cGdHQHV9vzUJYVK', blocks=blocks)
+    # create_block(ctx, 'h6J51UmA3KJYHQ1QSjDteS', blocks=blocks)
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ from wolai.types.resp import BlockFormat
 BLOCK_API_URL = f'{WOLAI_URL}/{API_VERSION_V1}/blocks'
 
 
-def create_block(ctx: callable, parent_id: str, blocks: list[Block] | Block) -> str:
+def create_block(ctx: callable, parent_id: str, blocks: list[Block] | Block) -> list[str]:
     resp = None
     if isinstance(blocks, (list, set, )) and len(blocks) > 20:
         for i in range(0, len(blocks), 20):
@@ -21,13 +21,16 @@ def create_block(ctx: callable, parent_id: str, blocks: list[Block] | Block) -> 
     })
 
     resp = ctx(BLOCK_API_URL, data)['data']
-    block_id = resp.split('/')[-1]
 
-    # page_id or block_id
-    if '#' in block_id:
-        block_id = block_id.split('#')[-1]
+    if isinstance(resp, str):
+        resp = [resp]
 
-    return block_id
+    block_ids = []
+    for block_url in resp:
+        block_id = block_url.split('/')[-1]
+        block_ids.append(block_id)
+
+    return block_ids
 
 
 def get_block(ctx: callable, block_id: str) -> BlockFormat:
