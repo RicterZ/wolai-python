@@ -28,10 +28,10 @@ class Wolai:
             parent_page_id = self.parent_page_id
 
         page = PageBlock(content=title, page_setting=page_setting, cover=cover, icon=icon)
-        page_id = self.create_blocks(page, parent_page_id=parent_page_id)
+        page_id = self.create_blocks(page, parent_page_id=parent_page_id)[0]
         return WolaiPage(ctx=self.ctx, page_id=page_id)
 
-    def create_blocks(self, blocks: list[Block] | Block, parent_page_id: str = None) -> str:
+    def create_blocks(self, blocks: list[Block] | Block, parent_page_id: str = None) -> list[str]:
         if parent_page_id is None:
             parent_page_id = self.parent_page_id
 
