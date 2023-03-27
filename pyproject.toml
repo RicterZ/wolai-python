@@ -4,7 +4,7 @@ version = "0.0.1"
 description = ""
 authors = ["Ricter Z <ricterzheng@gmail.com>"]
 readme = "README.md"
-packages = [{include = "wolai_python"}]
+packages = [{include = "wolai"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
