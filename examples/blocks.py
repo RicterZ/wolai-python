@@ -3,9 +3,11 @@ from wolai.types import *
 from wolai.types.block.list import make_list
 from wolai.auth import get_authed_context, get_token, refresh_token
 from wolai.block import create_block, get_block_children
+from wolai.logger import logger
 
-from local_settings import APP_ID, APP_SECRET
+from .local_settings import APP_ID, APP_SECRET
 
+logger.setLevel(level='DEBUG')
 PARENT_ID = 'h6J51UmA3KJYHQ1QSjDteS'
 IMAGE = 'https://img2.baidu.com/it/u=3202947311,1179654885&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
 

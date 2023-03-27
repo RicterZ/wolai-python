@@ -2,7 +2,7 @@ from wolai.auth import get_authed_context
 from wolai.database import get_database, insert_database
 from wolai.encoder import to_json
 
-from local_settings import APP_ID, APP_SECRET
+from .local_settings import APP_ID, APP_SECRET
 
 PARENT_ID = 'vtMAoPV9LUDprjR6UA9vu4'
 IMAGE = 'https://img2.baidu.com/it/u=3202947311,1179654885&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'

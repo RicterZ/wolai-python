@@ -12,7 +12,7 @@ from wolai.types.block.color import BlockFrontColors, BlockBackColors
 from wolai.types.text import RichText, TextAlign
 from wolai.types.block.list import make_list, BullListBlock, EnumListBlock
 
-from local_settings import APP_ID, APP_SECRET
+from .local_settings import APP_ID, APP_SECRET
 
 
 MATCH_HEADING = re.compile('^h([1-6])$')
