@@ -18,7 +18,6 @@ def main():
 
     a = HeadingBlock(level=HeadingLevel.TWO, content=['My ', RichText(type=InlineTitleType.text,
                                                                       front_color=BlockFrontColors.pink,
-                                                                      back_color=BlockBackColors.light_pink_background,
                                                                       title='Colorful API')])
     b = TextBlock(content='center!!!', text_alignment=TextAlign.center)
     c = CodeBlock(content='def main():\n    print("hello")', language='python',
