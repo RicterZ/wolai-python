@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "wolai-python"
+version = "0.1.0"
+description = ""
+authors = ["Ricter Z <ricterzheng@gmail.com>"]
+readme = "README.md"
+packages = [{include = "wolai_python"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.28.2"
+xmltodict = "^0.13.0"
+beautifulsoup4 = "^4.12.0"
+lxml = "^4.9.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
