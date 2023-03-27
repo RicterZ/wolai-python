@@ -2,7 +2,6 @@ import xmltodict
 import codecs
 import re
 import hashlib
-import requests
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag, PageElement, NavigableString

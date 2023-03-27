@@ -4,11 +4,7 @@ from wolai.types.block.list import make_list
 from wolai.auth import get_authed_context, get_token, refresh_token
 from wolai.block import create_block, get_block_children
 
-try:
-    from local_settings import APP_ID, APP_SECRET
-except ImportError:
-    APP_ID = '4X96H9ovsa7pyK6xmPgBHm'
-    APP_SECRET = '5086c508ef0711543ca932d375f1fb3d4222d3fd69c69f2b15e17e1c0188bddf'
+from local_settings import APP_ID, APP_SECRET
 
 PARENT_ID = 'h6J51UmA3KJYHQ1QSjDteS'
 IMAGE = 'https://img2.baidu.com/it/u=3202947311,1179654885&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'

@@ -7,7 +7,6 @@ from wolai.types.text import RichText, TextAlign
 from wolai.types.block.color import BlockFrontColors, BlockBackColors
 from wolai.types.database import DatabaseRowData
 from wolai.exceptions import WolaiEnumTypeException
-from wolai.encoder import to_json
 from wolai.logger import logger
 
 
