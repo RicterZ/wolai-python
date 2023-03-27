@@ -1,4 +1,3 @@
 requests
-xmltodict
 beautifulsoup4
 lxml
